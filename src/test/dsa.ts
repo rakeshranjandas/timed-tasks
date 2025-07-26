@@ -35,7 +35,7 @@ export const input: Phase[] = [
 
     {
         phase_name: "Review and Rewrite",
-        phase_time_in_minutes: 15,
+        phase_time_in_minutes: 20,
         phase_tasks: [
             {
                 task_name: "Can time or space complexity be improved?"

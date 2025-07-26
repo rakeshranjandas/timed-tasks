@@ -5,11 +5,13 @@ import { getContext, setContext } from "svelte";
 export class AppState {
     phases = $state<Phase[]>([]);
     current_phase_index = $state<number>(0);
+    view_phase_index = $state<number>(0);
     timer = $state<Timer | null>(null);
 
     constructor(phases: Phase[]) {
         this.phases = phases;
         this.current_phase_index = 0;
+        this.view_phase_index = 0;
         this.timer = new Timer();
         this.setTimer();
     }
@@ -69,45 +71,78 @@ export class AppState {
         return this.timer?.is_finished;
     }
 
+    startPhase() {
+        this.current_phase_index = this.view_phase_index;
+        this.setTimer();
+    }
+
+    startNextPhase() {
+        if (!this.hasNextPhase()) {
+            alert("There are no more phases.");
+            return;
+        }
+
+        this.goNextPhase();
+        this.startPhase();
+    }
+
+    isRunningPhase() {
+        return this.current_phase_index === this.view_phase_index;
+    }
+
     getPhaseName() {
-        if (this.current_phase_index >= this.phases.length) {
+        if (this.view_phase_index >= this.phases.length) {
             return "";
         }
 
-        return this.phases[this.current_phase_index].phase_name;
+        return this.phases[this.view_phase_index].phase_name;
     }
 
     hasNextPhase() {
-        return this.current_phase_index+1 < this.phases.length;
+        return this.view_phase_index + 1 < this.phases.length;
     }
 
     goNextPhase() {
-        if (this.current_phase_index >= this.phases.length) {
+        if (!this.hasNextPhase()) {
             return;
         }
 
-        this.current_phase_index++;
+        this.view_phase_index++;
     }
 
     hasPrevPhase() {
-        return this.current_phase_index-1 >= 0;
+        return this.view_phase_index - 1 >= 0;
     }
 
     goPrevPhase() {
-        if (this.current_phase_index <= 0) {
+        if (!this.hasPrevPhase()) {
             return;
         }
 
-        this.current_phase_index--;
+        this.view_phase_index--;
     }
 
     getTasks() {
-        return this.phases[this.current_phase_index].phase_tasks;
+        return this.phases[this.view_phase_index].phase_tasks;
     }
-    
+
     toggleTask(taskIndex: number) {
-        this.phases[this.current_phase_index].phase_tasks[taskIndex].task_completed = 
-            !this.phases[this.current_phase_index].phase_tasks[taskIndex].task_completed
+        this.phases[this.view_phase_index].phase_tasks[
+            taskIndex
+        ].task_completed =
+            !this.phases[this.view_phase_index].phase_tasks[taskIndex]
+                .task_completed;
+    }
+
+    allTasksComplete() {
+        let tasks = this.phases[this.view_phase_index].phase_tasks;
+
+        let completeTasksCount = 0;
+        tasks.forEach((task) => {
+            if (task.task_completed) completeTasksCount++;
+        });
+
+        return completeTasksCount === tasks.length;
     }
 }
 

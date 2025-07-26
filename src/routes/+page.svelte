@@ -20,7 +20,7 @@
             {/if}
             </div>
     </div>
-    <div class="phase-tasks-view">
+    <div class="phase-tasks-view {!appState.isRunningPhase() ? "phase-tasks-view-inactive": ""}">
         <div class="phase-view">
             {#if appState.hasPrevPhase()}
             <div class="phase-control"> 
@@ -39,6 +39,23 @@
             {/if}
         </div>
         <div class="tasks-view">
+            <!-- <div class="phase-change-control">
+                <Icon icon="subway:tick" width="24" height="24" />
+            </div> -->
+            {#if !appState.isRunningPhase()}
+            <div class="phase-change-control">
+                <Icon icon="tdesign:enter" width="24" height="24" onclick={() => appState.startPhase()}/>
+            </div>
+            {:else if appState.allTasksComplete()}
+            <div class="phase-change-control">
+                <Icon icon="subway:tick" width="24" height="24" onclick={() => appState.startNextPhase()}/>
+            </div>
+            {:else}
+            <div class="phase-change-control">
+                <Icon icon="lets-icons:blank-duotone" width="24" height="24" style="opacity:0"/>
+            </div>
+            {/if}
+
             <ul>
                 {#each appState.getTasks() as task, i}
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -84,6 +101,10 @@
         align-items: center;
     }
 
+    .phase-tasks-view-inactive {
+        background-color: rgb(236, 155, 155);
+    }
+
     .phase-view {
         height: 20%;
         display: flex;
@@ -117,7 +138,6 @@
 
     .tasks-view {
         flex: 1;
-        padding: 2rem;
     }
 
     .tasks-view ul>li {
@@ -143,5 +163,11 @@
 
     .task-done {
         text-decoration: line-through;
+    }
+
+    .phase-change-control {
+        text-align: center;
+        margin-bottom: 32px;
+        cursor: pointer;
     }
 </style>
