@@ -16,11 +16,15 @@ export class AppState {
 
     setTimer() {
         if (this.current_phase_index >= this.phases.length) {
-            console.log(`No phase present with index ${this.current_phase_index}`);
+            console.log(
+                `No phase present with index ${this.current_phase_index}`
+            );
             return;
         }
 
-        this.timer?.init(this.phases[this.current_phase_index].phase_time_in_minutes * 60);
+        this.timer?.init(
+            this.phases[this.current_phase_index].phase_time_in_minutes * 60
+        );
     }
 
     getTimeRemaining() {
@@ -43,7 +47,6 @@ export class AppState {
         let minutes_string = minutes.toString().padStart(2, "0");
 
         return minutes_string + ":" + seconds_string;
-  
     }
 
     timerPause() {
@@ -66,6 +69,46 @@ export class AppState {
         return this.timer?.is_finished;
     }
 
+    getPhaseName() {
+        if (this.current_phase_index >= this.phases.length) {
+            return "";
+        }
+
+        return this.phases[this.current_phase_index].phase_name;
+    }
+
+    hasNextPhase() {
+        return this.current_phase_index+1 < this.phases.length;
+    }
+
+    goNextPhase() {
+        if (this.current_phase_index >= this.phases.length) {
+            return;
+        }
+
+        this.current_phase_index++;
+    }
+
+    hasPrevPhase() {
+        return this.current_phase_index-1 >= 0;
+    }
+
+    goPrevPhase() {
+        if (this.current_phase_index <= 0) {
+            return;
+        }
+
+        this.current_phase_index--;
+    }
+
+    getTasks() {
+        return this.phases[this.current_phase_index].phase_tasks;
+    }
+    
+    toggleTask(taskIndex: number) {
+        this.phases[this.current_phase_index].phase_tasks[taskIndex].task_completed = 
+            !this.phases[this.current_phase_index].phase_tasks[taskIndex].task_completed
+    }
 }
 
 class Timer {

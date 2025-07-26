@@ -22,21 +22,32 @@
     </div>
     <div class="phase-tasks-view">
         <div class="phase-view">
+            {#if appState.hasPrevPhase()}
             <div class="phase-control"> 
-                <Icon icon="grommet-icons:previous" width="24" height="24" />
+                <Icon icon="grommet-icons:previous" width="24" height="24" onclick={() => appState.goPrevPhase()}/>
             </div>
+            {/if}
+
             <div class="phase-label">
-                <span class="phase-name">Phase 1: Idea</span>
+                <span class="phase-name">{appState.getPhaseName()}</span>
             </div>
+            
+            {#if appState.hasNextPhase()}
             <div class="phase-control"> 
-                <Icon icon="grommet-icons:next" width="24" height="24" />
+                <Icon icon="grommet-icons:next" width="24" height="24" onclick={() => appState.goNextPhase()}/>
             </div>
+            {/if}
         </div>
         <div class="tasks-view">
             <ul>
-                <li><s>One-line summary</s></li>
-                <li>What's the problem</li>
-                <li>Does anything exist like this</li>
+                {#each appState.getTasks() as task, i}
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <li 
+                        class={task.task_completed ? "task-done": ""} 
+                        onclick={() => appState.toggleTask(i)}
+                    >{task.task_name}</li>
+                {/each}
             </ul>
         </div>
     </div>
@@ -76,7 +87,7 @@
     .phase-view {
         height: 20%;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         gap: 80px;
     }
@@ -113,6 +124,7 @@
         font-size: 30px;
         text-align: right;
         cursor: pointer;
+        margin: 20px;
     }
 
     .blinking-time {
@@ -127,5 +139,9 @@
 
     .finished-time {
         color: red;
+    }
+
+    .task-done {
+        text-decoration: line-through;
     }
 </style>
