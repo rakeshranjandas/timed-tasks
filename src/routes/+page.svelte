@@ -1,14 +1,24 @@
 <script>
+    import { getAppState } from "$lib/state/app-state.svelte";
     import Icon from "@iconify/svelte";
 
+    let appState = getAppState();
+    let blinkTimeClass = $derived.by(() => appState.timerIsRunning() && appState.timeIsLessThanAMinute() ? "blinking-time": "");
+    let timeFinishedClass = $derived.by(() => appState.timerIsFinished() ? "finished-time": "");
 </script>
 <div class="viewport">
     <div class="timer-view">
-        <div class="timer-time">09:58</div>
+        <div class="timer-time {blinkTimeClass} {timeFinishedClass}">{appState.getTimeRemaining()}</div>
         <div class="timer-controls">
-            <Icon icon="mi:pause" width="24" height="24" />
-            <Icon icon="mi:play" width="24" height="24" />
-        </div>
+            {#if appState.timerIsRunning()}
+                <Icon icon="si:pause-fill" width="24" height="24" onclick={() => appState.timerPause()}/>
+            {:else}
+                {#if !appState.timerIsFinished()}
+                    <Icon icon="si:play-fill" width="24" height="24" onclick={() => appState.timerRun()}/>
+                {/if}
+                <Icon icon="iconamoon:restart" width="24" height="24" onclick={() => appState.timerRestart()}/>
+            {/if}
+            </div>
     </div>
     <div class="phase-tasks-view">
         <div class="phase-view">
@@ -52,6 +62,7 @@
 
     .timer-controls {
         font-size: 50px;
+        cursor: pointer;
     }
 
     .phase-tasks-view {
@@ -102,5 +113,19 @@
         font-size: 30px;
         text-align: right;
         cursor: pointer;
+    }
+
+    .blinking-time {
+      animation: blink 1s infinite; /* name duration iteration-count */
+    }
+    
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .finished-time {
+        color: red;
     }
 </style>
