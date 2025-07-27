@@ -1,5 +1,6 @@
 import type { Phase } from "$lib/types/task.types";
 import { getContext, setContext } from "svelte";
+import timerAudio from "$assets/timer-audio.mp3";
 
 
 export class AppState {
@@ -152,19 +153,26 @@ class Timer {
     is_running = $state<boolean>(false);
     is_finished = $state<boolean>(false);
     timer_instance: number | null = null;
+    timer_audio: HTMLAudioElement | null = null;
 
     constructor() {
+
+        // Since Audio API is only available in the browser, it has to 
+        // be made sure that the following code runs explicity in the browser
+        if (typeof window !== "undefined" && typeof Audio !== "undefined") {
+            this.timer_audio = new Audio(timerAudio);
+        }
+
         this.timer_instance = setInterval(() => {
             if (!this.is_running || this.is_finished) {
                 return;
             }
-
             this.time_remaining_in_seconds--;
             if (this.time_remaining_in_seconds === 0) {
+                this.timer_audio?.play();
                 this.is_finished = true;
                 this.is_running = false;
             }
-
         }, 1000);
     }
 
