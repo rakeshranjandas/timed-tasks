@@ -3,7 +3,7 @@ import type { Phase } from "$lib/types/task.types";
 export const input: Phase[] = [
     {
         phase_name: "Planning",
-        phase_time_in_minutes: 10,
+        phase_time_in_minutes: 0.1,
         phase_tasks: [
             {
                 task_name: "Draft a solution",
