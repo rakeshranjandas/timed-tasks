@@ -14,7 +14,8 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$test: 'src/test',
-			$assets: 'src/assets'
+			$assets: 'src/assets',
+			$workers: 'src/workers',
 		}
 	}
 };
