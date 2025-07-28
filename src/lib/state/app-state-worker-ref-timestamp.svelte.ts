@@ -173,8 +173,6 @@ class TimerWithWorker {
                 this.target_in_seconds - ticks
             );
 
-            console.log("XXXH", ticks);
-
             if (this.time_remaining_in_seconds === 0) {
                 this.worker?.postMessage({ action: TimerAction.STOP });
                 this.timer_audio?.play();
@@ -183,7 +181,6 @@ class TimerWithWorker {
             }
         };
 
-        console.log("JJJSD");
     }
 
     init(target_in_seconds: number) {
@@ -215,7 +212,6 @@ class TimerWithWorker {
 const APP_STATE_KEY = Symbol("APP_STATE");
 
 export function setAppState(phases: Phase[], worker: Worker) {
-    console.log("worker", worker);
     return setContext(APP_STATE_KEY, new AppState(phases, worker));
 }
 
