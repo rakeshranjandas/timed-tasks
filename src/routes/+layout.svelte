@@ -1,11 +1,9 @@
 <script lang="ts">
     import { AppState, setAppState } from '$lib/state/app-state.svelte';
-    import { workerUrl } from '$lib/workers/tick.worker';
+    import { TickWorker } from '$lib/workers/tick.worker';
     import { input } from '$test/dsa';
     import '../app.css';
     import { onDestroy, onMount } from 'svelte';
-
-    
 
     let worker = $state<Worker | null>(null);
     let appState = $derived.by(() => {
@@ -14,9 +12,7 @@
     });
 
     onMount(() => {
-        worker = new Worker(workerUrl, {
-            type: 'module'
-        });
+        worker = new TickWorker();
     });
 
     onDestroy(() => {
