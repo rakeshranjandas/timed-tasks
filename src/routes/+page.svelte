@@ -22,39 +22,31 @@
     </div>
     <div class="phase-tasks-view {!appState.isRunningPhase() ? "phase-tasks-view-inactive": ""}">
         <div class="phase-view">
-            {#if appState.hasPrevPhase()}
             <div class="phase-control"> 
-                <Icon icon="grommet-icons:previous" width="24" height="24" onclick={() => appState.goPrevPhase()}/>
+                <Icon icon="grommet-icons:previous" class={appState.hasPrevPhase() ? "": "phase-control-hidden"} width="24" height="24" onclick={() => appState.goPrevPhase()}/>
             </div>
-            {/if}
 
             <div class="phase-label">
                 <span class="phase-name">{appState.getPhaseName()}</span>
             </div>
             
-            {#if appState.hasNextPhase()}
             <div class="phase-control"> 
-                <Icon icon="grommet-icons:next" width="24" height="24" onclick={() => appState.goNextPhase()}/>
+                <Icon icon="grommet-icons:next" class={appState.hasNextPhase() ? "": "phase-control-hidden"} width="24" height="24" onclick={() => appState.goNextPhase()}/>
             </div>
+        </div>
+
+        <div class="phase-change-control">
+            {#if !appState.isRunningPhase()}
+                <span class="phase-change-time">{appState.getPhaseTime()}</span>
+                <Icon icon="material-symbols:timer-outline-rounded" class="phase-change-control-icon" width="24" height="24" onclick={() => appState.startPhase()}/>
+            {:else if appState.allTasksComplete()}
+                <Icon icon="subway:tick" class="phase-change-control-icon" width="24" height="24" onclick={() => appState.startNextPhase()}/>
+            {:else}
+                <Icon icon="lets-icons:blank-duotone" class="phase-change-control-icon" width="24" height="24" style="opacity:0"/>
             {/if}
         </div>
+
         <div class="tasks-view">
-            <!-- <div class="phase-change-control">
-                <Icon icon="subway:tick" width="24" height="24" />
-            </div> -->
-            {#if !appState.isRunningPhase()}
-            <div class="phase-change-control">
-                <Icon icon="tdesign:enter" width="24" height="24" onclick={() => appState.startPhase()}/>
-            </div>
-            {:else if appState.allTasksComplete()}
-            <div class="phase-change-control">
-                <Icon icon="subway:tick" width="24" height="24" onclick={() => appState.startNextPhase()}/>
-            </div>
-            {:else}
-            <div class="phase-change-control">
-                <Icon icon="lets-icons:blank-duotone" width="24" height="24" style="opacity:0"/>
-            </div>
-            {/if}
 
             <ul>
                 {#each appState.getTasks() as task, i}
@@ -107,16 +99,21 @@
 
     .phase-view {
         height: 20%;
+        width: 60%;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 80px;
+        margin: 20px;
+        /* gap: 80px; */
     }
 
     .phase-control {
         cursor: pointer;
         font-weight: lighter;
-        
+    }
+
+    :global(.phase-control-hidden) {
+        display: none;
     }
 
     .phase-label {
@@ -166,8 +163,19 @@
     }
 
     .phase-change-control {
-        text-align: center;
+        display: flex;
+        justify-content: center;
         margin-bottom: 32px;
+    }
+
+    :global(.phase-change-control-icon) {
         cursor: pointer;
     }
+
+    .phase-change-time {
+        font-size: 24px;
+        font-weight: lighter;
+        margin-right: 10px;
+    }
+
 </style>

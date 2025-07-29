@@ -35,6 +35,12 @@ export class AppState {
         return this.formatTime(this.timer?.time_remaining_in_seconds);
     }
 
+    getPhaseTime() {
+        return this.formatTime(
+            this.phases[this.view_phase_index].phase_time_in_minutes
+        );
+    }
+
     timeIsLessThanAMinute() {
         return this.timer && this.timer?.time_remaining_in_seconds < 60;
     }
