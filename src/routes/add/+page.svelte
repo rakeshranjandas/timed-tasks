@@ -1,21 +1,14 @@
 
 <script lang="ts">
+    import { defaultPhase } from '$lib/input/default_phase';
     import type { Phase, Task } from '$lib/types/task.types';
     import Icon from '@iconify/svelte';
 
-    let defaultPhases: Phase[] = [
-        {
-            phase_name: "",
-            phase_time_in_minutes: 0,
-            phase_tasks: [
-                {task_name: "task 1"},
-                {task_name: "task 1"},
-                {task_name: "task 1"},
-            ],
-        }
-    ]
+    let phases = $state<Phase[]>([defaultPhase]);
 
-    let phases = $state<Phase[]>(defaultPhases);
+    function addNewPhaseAction() {
+        phases = [...phases, defaultPhase];
+    }
 
 </script>
 
@@ -40,7 +33,9 @@
 {/snippet}
 
 {#snippet addNewPhase()}
-    <div class="add-new-phase">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="add-new-phase" onclick={() => addNewPhaseAction()}>
         <Icon icon="mdi:plus" width="24" height="24" />
     </div>
 {/snippet}

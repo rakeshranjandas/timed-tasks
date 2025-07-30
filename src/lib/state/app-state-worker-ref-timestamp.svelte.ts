@@ -3,6 +3,7 @@ import { getContext, setContext, tick } from "svelte";
 import timerAudio from "$assets/timer-audio.mp3";
 import { TimerAction } from "$lib/types/timer.types";
 import { formatTime } from "$lib/utils/time";
+import { defaultPhase } from "$lib/input/default_phase";
 
 export class AppState {
     phases = $state<Phase[]>([]);
@@ -10,11 +11,15 @@ export class AppState {
     view_phase_index = $state<number>(0);
     timer = $state<TimerWithWorker | null>(null);
 
-    constructor(phases: Phase[], worker: Worker) {
+    constructor(worker: Worker) {
+        this.timer = new TimerWithWorker(worker);
+        this.setup([defaultPhase]);
+    }
+
+    setup(phases: Phase[]) {
         this.phases = phases;
         this.current_phase_index = 0;
         this.view_phase_index = 0;
-        this.timer = new TimerWithWorker(worker);
 
         this.setTimer();
     }
@@ -204,8 +209,8 @@ class TimerWithWorker {
 
 const APP_STATE_KEY = Symbol("APP_STATE");
 
-export function setAppState(phases: Phase[], worker: Worker) {
-    return setContext(APP_STATE_KEY, new AppState(phases, worker));
+export function setAppState(worker: Worker) {
+    return setContext(APP_STATE_KEY, new AppState(worker));
 }
 
 export function getAppState() {
