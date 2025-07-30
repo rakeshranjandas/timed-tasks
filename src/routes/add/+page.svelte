@@ -1,13 +1,29 @@
 
 <script lang="ts">
+    import { goto } from '$app/navigation';
     import { defaultPhase } from '$lib/input/default_phase';
+    import { getAppState } from '$lib/state/app-state.svelte';
     import type { Phase, Task } from '$lib/types/task.types';
     import Icon from '@iconify/svelte';
 
     let phases = $state<Phase[]>([defaultPhase]);
+    let appState = getAppState();
 
     function addNewPhaseAction() {
         phases = [...phases, defaultPhase];
+    }
+
+    function startAction() {
+        appState.setup(phases);
+        goto("/");
+    }
+
+    function convertTasksToText(tasks: Task[]) {
+        return tasks.map((task) => task.task_name).join("\n");
+    }
+
+    function convertTextToTasks(text: string) {
+        return text.split("\n").filter(t => t.trim().length > 0).map((v): Task => { return {task_name: v} });
     }
 
 </script>
@@ -18,15 +34,23 @@
     <div class="add-phase">
         <div class="phase-input-container">
             <p class="phase-input-label">Phase</p>
-            <p><input type="text" value="{phase.phase_name}"/></p>
+            <p><input type="text" bind:value="{phase.phase_name}"/></p>
         </div>
         <div class="phase-input-container">
             <p class="phase-input-label">Minutes</p>
-            <p><input type="number" value={phase.phase_time_in_minutes}/></p>
+            <p><input type="number" bind:value={phase.phase_time_in_minutes}/></p>
         </div>
         <div class="phase-input-container">
             <p class="phase-input-label">Tasks</p>
-            <p><textarea>{phase.phase_tasks.map((task) => task.task_name).join("\n")}</textarea></p>
+            <p>
+                <textarea
+                value={convertTasksToText(phase.phase_tasks)}
+                oninput={(e: {target: HTMLInputElement}) => {
+                    phase.phase_tasks = convertTextToTasks(e.target.value);
+                }}
+                ></textarea>
+            </p>
+
         </div>
     </div>
 </div>
@@ -35,8 +59,16 @@
 {#snippet addNewPhase()}
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="add-new-phase" onclick={() => addNewPhaseAction()}>
+    <div class="add-phase-actions" onclick={() => addNewPhaseAction()}>
         <Icon icon="mdi:plus" width="24" height="24" />
+    </div>
+{/snippet}
+
+{#snippet start()} 
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="add-phase-actions start" onclick={() => startAction()}>
+        <p>Start</p>
     </div>
 {/snippet}
 
@@ -46,6 +78,8 @@
     {/each}
     
     {@render addNewPhase()}
+
+    {@render start()}
 </div>
 
 <style>
@@ -94,7 +128,7 @@
         color: #9d9d9d;
     }
 
-    .add-new-phase {
+    .add-phase-actions {
         margin-top: 20px;
         width: 50%;
         border: 1px solid gray;
@@ -104,4 +138,11 @@
         padding: 12px;
         cursor: pointer;
     }
+
+    .start {
+        background-color: rgba(0, 0, 0, 0.035);
+        color: #9d9d9d;
+        font-weight: bold;
+    }
+
 </style>
