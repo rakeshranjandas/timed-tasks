@@ -2,6 +2,7 @@ import type { Phase } from "$lib/types/task.types";
 import { getContext, setContext, tick } from "svelte";
 import timerAudio from "$assets/timer-audio.mp3";
 import { TimerAction } from "$lib/types/timer.types";
+import { formatTime } from "$lib/utils/time";
 
 export class AppState {
     phases = $state<Phase[]>([]);
@@ -32,29 +33,17 @@ export class AppState {
     }
 
     getTimeRemaining() {
-        return this.formatTime(this.timer?.time_remaining_in_seconds);
+        return formatTime(this.timer?.time_remaining_in_seconds);
     }
 
     getPhaseTime() {
-        return this.formatTime(this.phases[this.view_phase_index].phase_time_in_minutes);
+        return formatTime(
+            this.phases[this.view_phase_index].phase_time_in_minutes
+        );
     }
 
     timeIsLessThanAMinute() {
         return this.timer && this.timer?.time_remaining_in_seconds < 60;
-    }
-
-    formatTime(timeInSeconds: number | undefined) {
-        if (!timeInSeconds) {
-            return "00:00";
-        }
-
-        let seconds: number = timeInSeconds % 60;
-        let minutes: number = Math.floor(timeInSeconds / 60);
-
-        let seconds_string = seconds.toString().padStart(2, "0");
-        let minutes_string = minutes.toString().padStart(2, "0");
-
-        return minutes_string + ":" + seconds_string;
     }
 
     timerPause() {
