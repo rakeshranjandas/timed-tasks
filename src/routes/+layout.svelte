@@ -23,6 +23,19 @@
 
 </script>
 
-{#if appState}
-{@render children()}
-{/if}
+<div class="viewport">
+
+    {#if appState}
+    {@render children()}
+    {/if}
+
+</div>
+
+<style>
+
+    .viewport {
+        display: flex;
+        height: 100%;
+    }
+
+</style>

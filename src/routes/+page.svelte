@@ -6,7 +6,7 @@
     let blinkTimeClass = $derived.by(() => appState.timerIsRunning() && appState.timeIsLessThanAMinute() ? "blinking-time": "");
     let timeFinishedClass = $derived.by(() => appState.timerIsFinished() ? "finished-time": "");
 </script>
-<div class="viewport">
+
     <div class="timer-view">
         <div class="timer-time {blinkTimeClass} {timeFinishedClass}">{appState.getTimeRemaining()}</div>
         <div class="timer-controls">
@@ -20,6 +20,7 @@
             {/if}
             </div>
     </div>
+    
     <div class="phase-tasks-view {!appState.isRunningPhase() ? "phase-tasks-view-inactive": ""}">
         <div class="phase-view">
             <div class="phase-control"> 
@@ -42,7 +43,7 @@
             {:else if appState.allTasksComplete()}
                 <Icon icon="subway:tick" class="phase-change-control-icon" width="24" height="24" onclick={() => appState.startNextPhase()}/>
             {:else}
-                <Icon icon="lets-icons:blank-duotone" class="phase-change-control-icon" width="24" height="24" style="opacity:0"/>
+                <Icon icon="tdesign:edit" class="phase-change-control-icon" width="24" height="24" style="opacity:0;cursor:default"/>
             {/if}
         </div>
 
@@ -60,13 +61,8 @@
             </ul>
         </div>
     </div>
-</div>
 
 <style>
-    .viewport {
-        display: flex;
-        height: 100%;
-    }
 
     .timer-view {
         width: 40%;

@@ -1,0 +1,66 @@
+
+Phase 1:
+- Trimmed out the requirements
+    > Static input
+    > Single-level task
+
+- Implemented the timer in browser window's setInterval
+
+
+Issues:
+- Unreliable timer: When browser tab was moved to background, the timer was paused. Thus it recorded wrong time.
+- No alarm: Target time has expired, but alarm didn't fire. Again the browser was in the background.
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Phase 2:
+- Move the tick logic to a web worker
+
+Issues:
+- Worked correctly but what if the web worker gets throttled anytime and when I come back to the tab is shows wrong time.
+
+-------------------------------------------------------------------------------------------------------------------
+
+Phase 3:
+- Reference timestamp - to calculate actual time elapsed. Difference from a reference timestamp used instead of incremental tick.
+
+Issues:
+- No issues in timer
+- Vercel deployment does not work for some reason
+
+-------------------------------------------------------------------------------------------------------------------
+
+Phase 4:
+- Fixing worker initialization so that Vercel deployment works.
+    
+    Found that Dev tools > Network did not show worker js. Some problem in bundling.
+
+    > Problem: 
+        new URL("$lib/...", import.meta.url) does not resolve SvelteKit/Vite aliases like $lib at runtime.
+        This works in local dev only because the dev server resolves aliases on the fly. 
+        In production, those aliases don't map to actual files in the output bundle, and the worker file is not included.
+
+    > Fix:
+        Use Vite’s ?worker query, which is designed to bundle web workers properly.
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+>>> TO DOS <<<
+- Add task
+- Resume on refresh
+- Delete a task. (show delete icon beside a task on hover)
+- Add a task. (show add row at the last on hover)
+- Reorder tasks (show reorder icon on hover, make it draggable)
