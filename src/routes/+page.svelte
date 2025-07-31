@@ -79,15 +79,17 @@
 
             <ul>
                 {#each appState.getTasks() as task, i}
-                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <li 
-                        class={task.task_completed ? "task-done": ""} 
-                        onclick={() => appState.toggleTask(i)}
-                    >{task.task_name}</li>
+                <li>
+                    <div class="task-container">
+                        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <span onclick={() => appState.toggleTask(i)} class={task.task_completed ? "task-done": ""}>{task.task_name}</span>
+                        <Icon icon="material-symbols-light:delete-outline-rounded" class="delete-icon" onclick={() => appState.removeTask(i)} width="24" height="24"/>
+                    </div>
+                </li>
                 {/each}
 
-                <li></li>
                 
                 <li>
                     {#if !showAddNewTaskInput}
@@ -232,6 +234,18 @@
 
     .add-new-task-input {
         width: 100%;
+    }
+
+    :global(.delete-icon) {
+        opacity: 0;
+        transform: translateX(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
+    }
+
+    :global(.task-container:hover .delete-icon) {
+        opacity: 1;
+        transform: translateX(0);
     }
 
 </style>

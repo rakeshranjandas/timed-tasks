@@ -134,6 +134,10 @@ export class AppState {
                 .task_completed;
     }
 
+    removeTask(taskIndex: number) {
+        this.phases[this.view_phase_index].phase_tasks.splice(taskIndex, 1);
+    }
+
     allTasksComplete() {
         let tasks = this.phases[this.view_phase_index].phase_tasks;
 
@@ -147,7 +151,7 @@ export class AppState {
 
     addNewTask(newTaskName: string) {
         this.phases[this.view_phase_index].phase_tasks.push({
-            task_name: newTaskName
+            task_name: newTaskName,
         });
     }
 }
