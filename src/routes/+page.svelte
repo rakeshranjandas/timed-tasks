@@ -21,8 +21,10 @@
     }
 
     function saveAddNewTaskInputAction() {
+        if (newTask.trim() !== "") {
+            appState.addNewTask(newTask);
+        }
         showAddNewTaskInput = false;
-        appState.addNewTask(newTask);
         newTask = "";
     }
 
@@ -226,6 +228,7 @@
     .show-add-new-task-input {
         width: 100%;
         display: block;
+        min-width: 300px;
     }
 
     .show-add-new-task-input:hover {
