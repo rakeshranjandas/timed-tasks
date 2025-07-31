@@ -144,6 +144,12 @@ export class AppState {
 
         return completeTasksCount === tasks.length;
     }
+
+    addNewTask(newTaskName: string) {
+        this.phases[this.view_phase_index].phase_tasks.push({
+            task_name: newTaskName
+        });
+    }
 }
 
 class TimerWithWorker {

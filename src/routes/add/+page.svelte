@@ -140,6 +140,7 @@
     }
 
     .start {
+        margin-top: 70px;
         background-color: rgba(0, 0, 0, 0.035);
         color: #9d9d9d;
         font-weight: bold;

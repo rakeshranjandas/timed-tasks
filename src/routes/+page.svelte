@@ -1,10 +1,38 @@
-<script>
+<script lang="ts">
+    import { clickOutside } from "$lib/actions/click_outside";
     import { getAppState } from "$lib/state/app-state.svelte";
     import Icon from "@iconify/svelte";
+    import { tick } from "svelte";
 
     let appState = getAppState();
     let blinkTimeClass = $derived.by(() => appState.timerIsRunning() && appState.timeIsLessThanAMinute() ? "blinking-time": "");
     let timeFinishedClass = $derived.by(() => appState.timerIsFinished() ? "finished-time": "");
+
+    let showAddNewTaskInput = $state<boolean>(false);
+    let newTask = $state<string>("");
+
+    // svelte-ignore non_reactive_update
+    let addNewTaskInputRef = $state<HTMLInputElement | null>(null);
+        
+    async function showAddNewTaskInputAction() {
+        showAddNewTaskInput = true;
+        await tick();
+        addNewTaskInputRef?.focus();
+    }
+
+    function saveAddNewTaskInputAction() {
+        showAddNewTaskInput = false;
+        appState.addNewTask(newTask);
+        newTask = "";
+    }
+
+    function saveAddNewTaskInputActionOnEnter(event: KeyboardEvent) {
+        if (event.key === "Enter") {
+            saveAddNewTaskInputAction();
+            showAddNewTaskInputAction();
+        }
+    }
+
 </script>
 
     <div class="timer-view">
@@ -58,6 +86,25 @@
                         onclick={() => appState.toggleTask(i)}
                     >{task.task_name}</li>
                 {/each}
+
+                <li></li>
+                
+                <li>
+                    {#if !showAddNewTaskInput}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <span class="show-add-new-task-input" onclick={() => showAddNewTaskInputAction()}>&nbsp;</span>
+                    {:else}
+                    <input 
+                        bind:this={addNewTaskInputRef} 
+                        bind:value={newTask} 
+                        use:clickOutside={() => saveAddNewTaskInputAction()} 
+                        onkeydown={saveAddNewTaskInputActionOnEnter} 
+                        class="add-new-task-input" 
+                        type="text" 
+                    />
+                    {/if}
+                </li>
             </ul>
         </div>
     </div>
@@ -172,6 +219,19 @@
         font-size: 24px;
         font-weight: lighter;
         margin-right: 10px;
+    }
+
+    .show-add-new-task-input {
+        width: 100%;
+        display: block;
+    }
+
+    .show-add-new-task-input:hover {
+        background-color: rgba(0, 0, 0, 0.035);
+    }
+
+    .add-new-task-input {
+        width: 100%;
     }
 
 </style>
