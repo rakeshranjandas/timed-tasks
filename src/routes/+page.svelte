@@ -26,11 +26,20 @@
         return text.split("\n").filter(t => t.trim().length > 0).map((v): Task => { return {task_name: v} });
     }
 
+    function removePhase(phaseCount: number) {
+        phases.splice(phaseCount-1, 1);
+    }
+
 </script>
 
 {#snippet addPhaseContainer(phase: Phase, count: number)}
 <div class="add-phase-container">
-    <p class="add-phase-count">#{count}</p>
+    <p class="add-phase-count">
+        #{count}
+        {#if count > 1}
+        <Icon icon="material-symbols-light:delete-outline-rounded" class="delete-icon" onclick={() => removePhase(count)} width="24" height="24"/>
+        {/if}
+    </p>
     <div class="add-phase">
         <div class="phase-input-container">
             <p class="phase-input-label">Phase</p>
@@ -128,6 +137,7 @@
     .add-phase-count {
         font-weight: bolder;
         color: #9d9d9d;
+        display: flex;
     }
 
     .phase-input-label {
@@ -151,5 +161,18 @@
         color: #9d9d9d;
         font-weight: bold;
     }
+
+    :global(.delete-icon) {
+        opacity: 0;
+        transform: translateX(8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        cursor: pointer;
+    }
+
+    :global(.add-phase-count:hover .delete-icon) {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
 
 </style>
