@@ -59,8 +59,11 @@ Phase 4:
 
 
 >>> TO DOS <<<
-- Add task
+- Add task <done>
 - Resume on refresh
-- Delete a task. (show delete icon beside a task on hover)
-- Add a task. (show add row at the last on hover)
+- Delete a task. (show delete icon beside a task on hover) <done>
+- Add a task. (show add row at the last on hover) <done>
 - Reorder tasks (show reorder icon on hover, make it draggable)
+
+- Add task > Delete a Phase
+- Add task > Quick tasks
