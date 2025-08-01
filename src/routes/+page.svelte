@@ -1,254 +1,155 @@
+
 <script lang="ts">
-    import { clickOutside } from "$lib/actions/click_outside";
-    import { getAppState } from "$lib/state/app-state.svelte";
-    import Icon from "@iconify/svelte";
-    import { tick } from "svelte";
+    import { goto } from '$app/navigation';
+    import { defaultPhase } from '$lib/input/default_phase';
+    import { getAppState } from '$lib/state/app-state.svelte';
+    import type { Phase, Task } from '$lib/types/task.types';
+    import Icon from '@iconify/svelte';
 
+    let phases = $state<Phase[]>([defaultPhase]);
     let appState = getAppState();
-    let blinkTimeClass = $derived.by(() => appState.timerIsRunning() && appState.timeIsLessThanAMinute() ? "blinking-time": "");
-    let timeFinishedClass = $derived.by(() => appState.timerIsFinished() ? "finished-time": "");
 
-    let showAddNewTaskInput = $state<boolean>(false);
-    let newTask = $state<string>("");
-
-    // svelte-ignore non_reactive_update
-    let addNewTaskInputRef = $state<HTMLInputElement | null>(null);
-        
-    async function showAddNewTaskInputAction() {
-        showAddNewTaskInput = true;
-        await tick();
-        addNewTaskInputRef?.focus();
+    function addNewPhaseAction() {
+        phases = [...phases, defaultPhase];
     }
 
-    function saveAddNewTaskInputAction() {
-        if (newTask.trim() !== "") {
-            appState.addNewTask(newTask);
-        }
-        showAddNewTaskInput = false;
-        newTask = "";
+    function startAction() {
+        appState.setup(phases);
+        goto("/timer");
     }
 
-    function saveAddNewTaskInputActionOnEnter(event: KeyboardEvent) {
-        if (event.key === "Enter") {
-            saveAddNewTaskInputAction();
-            showAddNewTaskInputAction();
-        }
+    function convertTasksToText(tasks: Task[]) {
+        return tasks.map((task) => task.task_name).join("\n");
+    }
+
+    function convertTextToTasks(text: string) {
+        return text.split("\n").filter(t => t.trim().length > 0).map((v): Task => { return {task_name: v} });
     }
 
 </script>
 
-    <div class="timer-view">
-        <div class="timer-time {blinkTimeClass} {timeFinishedClass}">{appState.getTimeRemaining()}</div>
-        <div class="timer-controls">
-            {#if appState.timerIsRunning()}
-                <Icon icon="si:pause-fill" width="24" height="24" onclick={() => appState.timerPause()}/>
-            {:else}
-                {#if !appState.timerIsFinished()}
-                    <Icon icon="si:play-fill" width="24" height="24" onclick={() => appState.timerRun()}/>
-                {/if}
-                <Icon icon="iconamoon:restart" width="24" height="24" onclick={() => appState.timerRestart()}/>
-            {/if}
-            </div>
+{#snippet addPhaseContainer(phase: Phase, count: number)}
+<div class="add-phase-container">
+    <p class="add-phase-count">#{count}</p>
+    <div class="add-phase">
+        <div class="phase-input-container">
+            <p class="phase-input-label">Phase</p>
+            <p><input type="text" bind:value="{phase.phase_name}"/></p>
+        </div>
+        <div class="phase-input-container">
+            <p class="phase-input-label">Minutes</p>
+            <p><input type="number" bind:value={phase.phase_time_in_minutes}/></p>
+        </div>
+        <div class="phase-input-container">
+            <p class="phase-input-label">Tasks</p>
+            <p>
+                <textarea
+                value={convertTasksToText(phase.phase_tasks)}
+                oninput={(e: {target: HTMLInputElement}) => {
+                    phase.phase_tasks = convertTextToTasks(e.target.value);
+                }}
+                ></textarea>
+            </p>
+
+        </div>
+    </div>
+</div>
+{/snippet}
+
+{#snippet addNewPhase()}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="add-phase-actions" onclick={() => addNewPhaseAction()}>
+        <Icon icon="mdi:plus" width="24" height="24" />
+    </div>
+{/snippet}
+
+{#snippet start()} 
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="add-phase-actions start" onclick={() => startAction()}>
+        <p>Start</p>
+    </div>
+{/snippet}
+
+
+<div class="add-container">
+    <div class="quick-tasks-container">
+        <button>Hello</button>
+        <button>Hello</button>
     </div>
     
-    <div class="phase-tasks-view {!appState.isRunningPhase() ? "phase-tasks-view-inactive": ""}">
-        <div class="phase-view">
-            <div class="phase-control"> 
-                <Icon icon="grommet-icons:previous" class={appState.hasPrevPhase() ? "": "phase-control-hidden"} width="24" height="24" onclick={() => appState.goPrevPhase()}/>
-            </div>
+    {#each phases as phase, index}
+        {@render addPhaseContainer(phase, index+1)}
+    {/each}
+    
+    {@render addNewPhase()}
 
-            <div class="phase-label">
-                <span class="phase-name">{appState.getPhaseName()}</span>
-            </div>
-            
-            <div class="phase-control"> 
-                <Icon icon="grommet-icons:next" class={appState.hasNextPhase() ? "": "phase-control-hidden"} width="24" height="24" onclick={() => appState.goNextPhase()}/>
-            </div>
-        </div>
-
-        <div class="phase-change-control">
-            {#if !appState.isRunningPhase()}
-                <span class="phase-change-time">{appState.getPhaseTime()}</span>
-                <Icon icon="material-symbols:timer-outline-rounded" class="phase-change-control-icon" width="24" height="24" onclick={() => appState.startPhase()}/>
-            {:else if appState.allTasksComplete()}
-                <Icon icon="subway:tick" class="phase-change-control-icon" width="24" height="24" onclick={() => appState.startNextPhase()}/>
-            {:else}
-                <Icon icon="tdesign:edit" class="phase-change-control-icon" width="24" height="24" style="opacity:0;cursor:default"/>
-            {/if}
-        </div>
-
-        <div class="tasks-view">
-
-            <ul>
-                {#each appState.getTasks() as task, i}
-                <li>
-                    <div class="task-container">
-                        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <span onclick={() => appState.toggleTask(i)} class={task.task_completed ? "task-done": ""}>{task.task_name}</span>
-                        <Icon icon="material-symbols-light:delete-outline-rounded" class="delete-icon" onclick={() => appState.removeTask(i)} width="24" height="24"/>
-                    </div>
-                </li>
-                {/each}
-
-                
-                <li>
-                    {#if !showAddNewTaskInput}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <span class="show-add-new-task-input" onclick={() => showAddNewTaskInputAction()}>&nbsp;</span>
-                    {:else}
-                    <input 
-                        bind:this={addNewTaskInputRef} 
-                        bind:value={newTask} 
-                        use:clickOutside={() => saveAddNewTaskInputAction()} 
-                        onkeydown={saveAddNewTaskInputActionOnEnter} 
-                        class="add-new-task-input" 
-                        type="text" 
-                    />
-                    {/if}
-                </li>
-            </ul>
-        </div>
-    </div>
+    {@render start()}
+</div>
 
 <style>
-
-    .timer-view {
-        width: 40%;
+    .add-container {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .timer-time {
-        font-size: 150px;
-    }
-
-    .timer-controls {
-        font-size: 50px;
-        cursor: pointer;
-    }
-
-    .phase-tasks-view {
-        flex: 1;
-        display: flex;
+        width: 100%;
         flex-direction: column;
         justify-content: flex-start;
+        margin-top: 100px;
         align-items: center;
-    }
-
-    .phase-tasks-view-inactive {
-        background-color: rgb(236, 155, 155);
-    }
-
-    .phase-view {
-        height: 20%;
-        width: 60%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 20px;
-        /* gap: 80px; */
-    }
-
-    .phase-control {
-        cursor: pointer;
-        font-weight: lighter;
-    }
-
-    :global(.phase-control-hidden) {
-        display: none;
-    }
-
-    .phase-label {
-        display: flex;
-        font-weight: bold;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .phase-count {
-        font-size: 15px;
-        color: gray;
-    }
-
-    .phase-name {
-        font-size: 50px;
-    }
-
-    .tasks-view {
-        flex: 1;
-    }
-
-    .tasks-view ul>li {
-        font-size: 30px;
-        text-align: right;
-        cursor: pointer;
-        margin: 20px;
-    }
-
-    .blinking-time {
-      animation: blink 1s infinite; /* name duration iteration-count */
+        gap: 10px;
     }
     
-    @keyframes blink {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
+    .add-phase-container {
+        width: 50%;
     }
 
-    .finished-time {
-        color: red;
+    .add-phase {
+        border: 1px solid black;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
     }
 
-    .task-done {
-        text-decoration: line-through;
+    .phase-input-container {
+        margin-bottom: 5px;
     }
 
-    .phase-change-control {
+    .phase-input-container input[type="text"] {
+        width: 100%;
+    }
+
+    .phase-input-container textarea {
+        width: 100%;
+        height: 200px;
+    }
+
+    .add-phase-count {
+        font-weight: bolder;
+        color: #9d9d9d;
+    }
+
+    .phase-input-label {
+        color: #9d9d9d;
+    }
+
+    .add-phase-actions {
+        margin-top: 20px;
+        width: 50%;
+        border: 1px solid gray;
+        /* background-color: gray; */
         display: flex;
         justify-content: center;
-        margin-bottom: 32px;
-    }
-
-    :global(.phase-change-control-icon) {
+        padding: 12px;
         cursor: pointer;
     }
 
-    .phase-change-time {
-        font-size: 24px;
-        font-weight: lighter;
-        margin-right: 10px;
-    }
-
-    .show-add-new-task-input {
-        width: 100%;
-        display: block;
-        min-width: 300px;
-    }
-
-    .show-add-new-task-input:hover {
+    .start {
+        margin-top: 70px;
         background-color: rgba(0, 0, 0, 0.035);
-    }
-
-    .add-new-task-input {
-        width: 100%;
-    }
-
-    :global(.delete-icon) {
-        opacity: 0;
-        transform: translateX(8px);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        cursor: pointer;
-    }
-
-    :global(.task-container:hover .delete-icon) {
-        opacity: 1;
-        transform: translateX(0);
+        color: #9d9d9d;
+        font-weight: bold;
     }
 
 </style>
