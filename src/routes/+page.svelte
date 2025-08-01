@@ -1,12 +1,14 @@
 
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { input as appSprintInput } from '$lib/input/app_sprint';
     import { defaultPhase } from '$lib/input/default_phase';
+    import { input as DSAInput} from '$lib/input/dsa';
     import { getAppState } from '$lib/state/app-state.svelte';
     import type { Phase, Task } from '$lib/types/task.types';
     import Icon from '@iconify/svelte';
 
-    let phases = $state<Phase[]>([defaultPhase]);
+    let phases = $state<Phase[]>([ defaultPhase ]);
     let appState = getAppState();
 
     function addNewPhaseAction() {
@@ -84,8 +86,9 @@
 
 <div class="add-container">
     <div class="quick-tasks-container">
-        <button>Hello</button>
-        <button>Hello</button>
+        <button onclick={() => phases = DSAInput}>DSA</button>
+        <button onclick={() => phases = appSprintInput}>App-sprint</button>
+        <button onclick={() => phases = [ defaultPhase ]}>New</button>
     </div>
     
     {#each phases as phase, index}
@@ -103,7 +106,7 @@
         width: 100%;
         flex-direction: column;
         justify-content: flex-start;
-        margin-top: 100px;
+        /* margin-top: 100px; */
         align-items: center;
         gap: 10px;
     }
@@ -174,5 +177,21 @@
         transform: translateX(0);
     }
 
+    .quick-tasks-container {
+        margin-bottom: 50px;
+        width: 80%;
+        margin-top: 50px;
+        display: flex;
+        gap: 20px;
+    }
+
+    .quick-tasks-container > button {
+        min-width: 100px;
+        min-height: 20px;
+        padding: 10px;
+        font-size: 20px;
+        border: 1px solid gray;
+        color: gray;
+    }
 
 </style>
