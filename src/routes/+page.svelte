@@ -1,7 +1,9 @@
 
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import { input as DSAInput} from '$lib/input/dsa';
     import { input as appSprintInput } from '$lib/input/app_sprint';
+    import { input as writingInput } from '$lib/input/writing';
     import { defaultPhase } from '$lib/input/default_phase';
     import { input as DSAInput} from '$lib/input/dsa';
     import { getAppState } from '$lib/state/app-state.svelte';
@@ -88,7 +90,8 @@
     <div class="quick-tasks-container">
         <button onclick={() => phases = DSAInput}>DSA</button>
         <button onclick={() => phases = appSprintInput}>App-sprint</button>
-        <button onclick={() => phases = [ defaultPhase ]}>New</button>
+        <button onclick={() => phases = writingInput}>Writing</button>
+        <button onclick={() => { phases = [ defaultPhase ]; sessionName = ""; }}>New</button>
     </div>
     
     {#each phases as phase, index}
