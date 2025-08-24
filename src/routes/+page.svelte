@@ -5,7 +5,6 @@
     import { input as appSprintInput } from '$lib/input/app_sprint';
     import { input as writingInput } from '$lib/input/writing';
     import { defaultPhase } from '$lib/input/default_phase';
-    import { input as DSAInput} from '$lib/input/dsa';
     import { getAppState } from '$lib/state/app-state.svelte';
     import type { Phase, Task } from '$lib/types/task.types';
     import Icon from '@iconify/svelte';
